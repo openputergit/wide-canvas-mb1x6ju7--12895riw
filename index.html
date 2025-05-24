@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Where Data Meets Strategy</title>
+    <script async src="https://unpkg.com/es-module-shims@1.3.6/dist/es-module-shims.js"></script>
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://unpkg.com/three@0.159.0/build/three.module.js",
+                "three/addons/": "https://unpkg.com/three@0.159.0/examples/jsm/"
+            }
+        }
+    </script>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <style>
+        body { margin: 0; }
+        canvas { display: block; }
+        .gradient-text {
+            background: linear-gradient(45deg, #3B82F6, #10B981);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+    </style>
+</head>
+<body class="bg-gray-900">
+    <!-- Navigation -->
+    <nav class="fixed w-full z-50 bg-opacity-90 bg-gray-900 backdrop-filter backdrop-blur-lg">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center">
+                    <img src="https://firebasestorage.googleapis.com/v0/b/widecanvas-d0dd4.appspot.com/o/logos%2F1000137259.jpg?alt=media&token=b8c2d6de-23c3-4432-a6c9-58b709e9da70" 
+                         alt="Logo" 
+                         class="h-8 w-auto">
+                </div>
+                <h1 class="text-xl font-bold text-white">Where Data Meets Strategy</h1>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Three.js Canvas -->
+    <div id="canvas-container" class="fixed top-0 left-0 w-full h-full -z-10"></div>
+
+    <!-- Content Overlay -->
+    <div class="relative min-h-screen flex items-center justify-center">
+        <div class="text-center p-8">
+            <h2 class="text-4xl md:text-6xl font-bold gradient-text mb-6">
+                Interactive Data Visualization
+            </h2>
+            <p class="text-gray-300 text-lg md:text-xl max-w-2xl mx-auto">
+                Experience your data in a new dimension
+            </p>
+        </div>
+    </div>
+
+    <script type="module">
+        import * as THREE from 'three';
+        import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+        // Scene setup
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.getElementById('canvas-container').appendChild(renderer.domElement);
+
+        // Create brick wall pattern
+        const geometry = new THREE.BoxGeometry(1, 0.5, 0.2);
+        const material = new THREE.MeshPhongMaterial({ color: 0x4B9CD3 }); // Blue color matching the image
+
+        const bricks = [];
+        const rows = 15;
+        const cols = 20;
+
+        for(let i = 0; i < rows; i++) {
+            for(let j = 0; j < cols; j++) {
+                const brick = new THREE.Mesh(geometry, material);
+                const offset = (i % 2) * 0.5; // Offset every other row
+                brick.position.set(j - cols/2 + offset, i * 0.5 - rows/2, 0);
+                scene.add(brick);
+                bricks.push(brick);
+            }
+        }
+
+        // Lighting
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+        scene.add(ambientLight);
+
+        const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+        directionalLight.position.set(5, 5, 5);
+        scene.add(directionalLight);
+
+        camera.position.z = 15;
+
+        // Controls
+        const controls = new OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true;
+        controls.dampingFactor = 0.05;
+        controls.maxDistance = 20;
+        controls.minDistance = 5;
+
+        // Animation
+        function animate() {
+            requestAnimationFrame(animate);
+            
+            // Animate bricks
+            bricks.forEach((brick, index) => {
+                brick.rotation.y = Math.sin(Date.now() * 0.001 + index * 0.1) * 0.2;
+                brick.position.z = Math.sin(Date.now() * 0.001 + index * 0.1) * 0.2;
+            });
+
+            controls.update();
+            renderer.render(scene, camera);
+        }
+
+        // Responsive design
+        window.addEventListener('resize', onWindowResize, false);
+
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+
+        animate();
+    </script>
+<script>document.body.addEventListener('wheel', e => { if (!e.ctrlKey) return; e.preventDefault(); return }, { passive: false })</script>
+	</body>
+</html>
